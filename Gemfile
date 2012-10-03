@@ -1,8 +1,12 @@
 source :rubygems
+
+# Core Gems
 gem 'sinatra'
 gem 'sinatra-initializers'
-gem 'tinder'
 gem 'rake'
+
+# App Gems
+gem 'tinder'
 
 gem 'shotgun', :group => :development
 gem 'rspec', :group => :test

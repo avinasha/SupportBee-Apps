@@ -23,14 +23,7 @@ class RunApp < Sinatra::Base
   end
 
   get "/" do
-    hash = {}
-    SupportBeeApp::Base.apps.each do |app|
-      hash[app.stub] = {
-        :title => app.title,
-        :schema => app.schema
-      }
-    end
-    hash.to_json
+    "OK"
   end
 
   def parse_request
