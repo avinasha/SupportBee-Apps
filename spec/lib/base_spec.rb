@@ -54,8 +54,46 @@ describe SupportBeeApp::Base do
     end
 
     describe "Receive" do
-      context "Event" do; end
-      context "Action" do; end
+      context "Event" do
+        it "should trigger an event" do
+          dummy = Dummy::Base.new
+          flexmock(dummy).should_receive(:ticket_created).once
+          dummy.trigger_event('ticket.created')
+        end
+
+        it "should trigger all_events for any event" do
+          dummy = Dummy::Base.new
+          flexmock(dummy).should_receive(:all_events).once
+          dummy.trigger_event('ticket.created')
+        end
+
+        it "should silently fail if the app does not handle the event" do
+          dummy = Dummy::Base.new
+          lambda{
+            dummy.trigger_event('blah')
+          }.should_not raise_error
+        end
+      end
+      context "Action" do 
+        it "should trigger a action" do
+          dummy = Dummy::Base.new
+          flexmock(dummy).should_receive(:action_button).once
+          dummy.trigger_action('action_button')
+        end
+
+        it "should trigger all_actions for any action" do
+          dummy = Dummy::Base.new
+          flexmock(dummy).should_receive(:all_actions).once
+          dummy.trigger_action('action_button')
+        end
+
+        it "should silently fail if the app does not handle an action" do
+          dummy = Dummy::Base.new
+          lambda{
+            dummy.trigger_action('blah')
+          }.should_not raise_error
+        end
+      end
     end
   end
 end

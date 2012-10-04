@@ -70,12 +70,12 @@ module SupportBeeApp
         action_handler ? action_handler.instance_methods : []
       end
 
-    	def receive_event(event, data, payload = nil)
+    	def trigger_event(event, data, payload = nil)
     		app = new(data,payload)
         app.receive_event(event)
     	end
 
-      def receive_action(action, data, payload = nil)
+      def trigger_action(action, data, payload = nil)
     		app = new(data,payload)
         app.receive_action(action)
     	end
@@ -110,12 +110,24 @@ module SupportBeeApp
     	@payload = payload || {}
   	end
 
-    def receive_event(event)
-
+    def trigger_event(event)
+      @event = event
+      method = to_method(event)
+      self.send method if self.respond_to?(method)
+      all_events if self.respond_to?(:all_events)
     end
 
-    def receive_action(action)
+    def trigger_action(action)
+      @action = action
+      method = to_method(action)
+      self.send method if self.respond_to?(method)
+      all_actions if self.respond_to?(:all_actions)
+    end
 
+    private
+    
+    def to_method(string)
+      string.gsub('.','_').underscore
     end
 	end
 end
