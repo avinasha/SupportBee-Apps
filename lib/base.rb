@@ -39,6 +39,15 @@ module SupportBeeApp
 				@schema ||= {}
 			end
 
+      def info
+        {
+          'name' => configuration['name'],
+          'slug' => configuration['slug'],
+          'configuration' => configuration,
+          'schema' => schema
+        }
+      end
+
 			def add_to_schema(type,name,options={})
         type = type.to_s
         name = name.to_s
