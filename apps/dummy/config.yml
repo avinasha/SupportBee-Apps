@@ -1,0 +1,7 @@
+name: Dummy
+slug: dummy
+action:
+  action_button:
+    screens: all,unassigned
+    listing: all
+    label: Send To Pivotal

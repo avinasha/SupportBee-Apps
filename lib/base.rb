@@ -15,50 +15,82 @@ module SupportBeeApp
 				@apps ||= []
 			end
 
-			def schema
-				@schema ||= []
-			end
-
       def root
-        Pathname.new(APPS_PATH).join(self.to_s.deconstantize.underscore)
+        Pathname.new(APPS_PATH).join(app_module.to_s.underscore)
       end
 
-			def add_to_schema(type, attrs)
-      	attrs.each do |attr|
-        	schema << [type, attr.to_sym]
-      	end
+      def app_module
+        self.to_s.deconstantize.constantize
+      end
+
+      def assets_path
+        root.join('assets')
+      end
+
+      def views_path
+        assets_path.join('views')
+      end
+    
+      def configuration
+        @configuration ||= YAML.load_file(root.join('config.yml').to_s)
+      end
+
+      def schema
+				@schema ||= {}
+			end
+
+			def add_to_schema(type,name,options={})
+        type = type.to_s
+        name = name.to_s
+        required = options.delete(:required) ? true : false
+        default = options.delete(:default)
+        label = options.delete(:label) || name.humanize
+        schema[name] = { 'type' => type, 'required' => required, 'label' => label }
+        schema[name]['default'] = default if default
+        schema
     	end
 
-    	def string(*attrs)
-      	add_to_schema :string, attrs
+    	def string(name, options={})
+      	add_to_schema :string, name, options
     	end
 
-    	def password(*attrs)
-      	add_to_schema :password, attrs
+    	def password(name, options={})
+      	add_to_schema :password, name, options
     	end
 
-    	def boolean(*attrs)
-      	add_to_schema :boolean, attrs
+    	def boolean(name, options={})
+      	add_to_schema :boolean, name, options
     	end
 
-    	def set_name(app_name)
-    		@title = app_name
+      def event_methods
+        event_handler ? event_handler.instance_methods : []
+      end
+
+      def action_methods
+        action_handler ? action_handler.instance_methods : []
+      end
+
+    	def receive_event(event, data, payload = nil)
+    		app = new(data,payload)
+        app.receive_event(event)
     	end
 
-    	def set_stub(app_slug)
-    		@stub = app_slug
+      def receive_action(action, data, payload = nil)
+    		app = new(data,payload)
+        app.receive_action(action)
     	end
 
-    	def receive(event, data, payload = nil)
-    		app = new(event,data,payload)
-    		methods = ["receive_#{event}","receive_event"]
-    		if event_method = methods.detect {|method| app.respond_to?(method)}
-    			app.send(event_method)
-    			app
-    		end
-    	end
+      def event_handler
+        app_module.const_defined?("EventHandler") ? app_module.const_get("EventHandler") : nil
+      end
+
+      def action_handler
+        app_module.const_defined?("ActionHandler") ? app_module.const_get("ActionHandler") : nil
+      end
 
     	def inherited(app)
+        app.send(:include, app.event_handler) if app.event_handler
+        app.send(:include, app.action_handler) if app.action_handler
       	SupportBeeApp::Base.apps << app 
       	super
     	end
@@ -68,16 +100,22 @@ module SupportBeeApp
     	end
 		end
 
-		attr_reader :data
+		self.env ||= PLATFORM_ENV
+
+    attr_reader :data
 		attr_reader :payload
-		attr_reader :event
 
-		self.env ||= ENV['RACK_ENV']
-
-		def initialize(event = :'ticket.created', data = {}, payload = nil)
-    	@event = event.to_sym
+		def initialize(data = {}, payload = nil)
     	@data = data || {}
     	@payload = payload || {}
   	end
+
+    def receive_event(event)
+
+    end
+
+    def receive_action(action)
+
+    end
 	end
 end

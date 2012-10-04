@@ -1,5 +1,5 @@
 module Dummy
-  module Event 
+  module EventHandler
     def ticket_created; end
     def ticket_updated; end
 
@@ -9,7 +9,7 @@ module Dummy
 end
 
 module Dummy
-  module Action
+  module ActionHandler
     def action_button
      # Handle Action here
     end
@@ -18,6 +18,8 @@ end
 
 module Dummy
   class Base < SupportBeeApp::Base
-    
+    string :name, :required => true
+    password :key, :required => true, :label => 'Token'
+    boolean :active, :default => true
   end
 end
