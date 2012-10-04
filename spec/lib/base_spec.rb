@@ -2,13 +2,21 @@ require 'spec_helper'
 
 describe SupportBeeApp::Base do
   describe "ClassMethods" do
-		describe "Env" do
+		describe "Variables" do
       it "should respond to env" do
-			  SupportBeeApp::Base.env.should == 'test'
+			  Dummy::Base.env.should == 'test'
 		  end
 
       it "should have env helper methods" do
-        SupportBeeApp::Base.should be_test
+        Dummy::Base.should be_test
+      end
+
+      it "should set name" do
+        Dummy::Base.name.should == 'Dummy'
+      end 
+
+      it "should set slug" do
+        Dummy::Base.slug.should == 'dummy'
       end
     end
 

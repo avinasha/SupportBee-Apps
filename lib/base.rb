@@ -1,11 +1,19 @@
 module SupportBeeApp
 	class Base
 		class << self
-			attr_accessor :env
-			attr_reader :name
-			attr_reader :slug
+			def env
+        @env ||= PLATFORM_ENV
+      end
 
-			%w(development test production staging).each do |m|
+      def slug
+        configuration['slug']
+      end
+
+      def name
+        configuration['name']
+      end
+
+      %w(development test production staging).each do |m|
       	define_method "#{m}?" do
         	env == m
       	end

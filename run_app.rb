@@ -10,9 +10,16 @@ class RunApp < Sinatra::Base
       app_class.name
     end
 
-    post "/#{app_class.slug}/:event" do
+    post "/#{app_class.slug}/event/:event" do
       event, data, payload = parse_request
-      if app = app_class.receive(event, data, payload)
+      if app = app_class.trigger_event(event, data, payload)
+        "OK"
+      end
+    end
+
+    post "/#{app_class.slug}/action/:action" do
+      event, data, payload = parse_request
+      if app = app_class.trigger_action(action, data, payload)
         "OK"
       end
     end
