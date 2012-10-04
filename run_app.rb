@@ -6,11 +6,11 @@ class RunApp < Sinatra::Base
   register Sinatra::Initializers
 
   def self.setup(app_class)
-    get "/#{app_class.stub}" do
-      app_class.title
+    get "/#{app_class.slug}" do
+      app_class.name
     end
 
-    post "/#{app_class.stub}/:event" do
+    post "/#{app_class.slug}/:event" do
       event, data, payload = parse_request
       if app = app_class.receive(event, data, payload)
         "OK"

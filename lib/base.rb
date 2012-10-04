@@ -2,8 +2,8 @@ module SupportBeeApp
 	class Base
 		class << self
 			attr_accessor :env
-			attr_reader :title
-			attr_reader :stub
+			attr_reader :name
+			attr_reader :slug
 
 			%w(development test production staging).each do |m|
       	define_method "#{m}?" do
@@ -18,6 +18,10 @@ module SupportBeeApp
 			def schema
 				@schema ||= []
 			end
+
+      def root
+        Pathname.new(APPS_PATH).join(self.to_s.deconstantize.underscore)
+      end
 
 			def add_to_schema(type, attrs)
       	attrs.each do |attr|
@@ -37,12 +41,12 @@ module SupportBeeApp
       	add_to_schema :boolean, attrs
     	end
 
-    	def set_title(app_title)
-    		@title = app_title
+    	def set_name(app_name)
+    		@title = app_name
     	end
 
-    	def set_stub(app_stub)
-    		@stub = app_stub
+    	def set_stub(app_slug)
+    		@stub = app_slug
     	end
 
     	def receive(event, data, payload = nil)

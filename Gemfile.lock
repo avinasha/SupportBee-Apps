@@ -61,6 +61,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activesupport
   rack-test
   rake
   rspec

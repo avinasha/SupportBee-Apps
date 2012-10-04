@@ -4,6 +4,7 @@ source :rubygems
 gem 'sinatra'
 gem 'sinatra-initializers'
 gem 'rake'
+gem 'activesupport', :require => false
 
 # App Gems
 gem 'tinder'

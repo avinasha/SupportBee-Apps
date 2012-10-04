@@ -1,0 +1,1 @@
+APPS_PATH = "#{PLATFORM_ROOT}/apps"
