@@ -1,7 +1,7 @@
 module SupportBeeApp
 	class Base
 		
-    include SupportBeeApp::HttpHelpers
+    include HttpHelper
 
     class << self
 			def env
@@ -139,7 +139,7 @@ module SupportBeeApp
 		def initialize(data = {}, payload = nil)
     	@data = data || {}
     	@payload = payload || {}
-      @supportbee = SupportBee.new(data[:auth_token])
+      @supportbee = SupportBee.new(data)
   	end
 
     def trigger_event(event)
