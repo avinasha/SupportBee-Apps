@@ -5,6 +5,9 @@ gem 'sinatra'
 gem 'sinatra-initializers'
 gem 'rake'
 gem 'activesupport', :require => false
+gem 'addressable'
+gem 'faraday'
+gem 'faraday_middleware'
 
 # App Gems
 gem 'tinder'

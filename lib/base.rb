@@ -1,6 +1,9 @@
 module SupportBeeApp
 	class Base
-		class << self
+		
+    include SupportBeeApp::HttpHelpers
+
+    class << self
 			def env
         @env ||= PLATFORM_ENV
       end
@@ -12,6 +15,14 @@ module SupportBeeApp
       def name
         configuration['name']
       end
+
+      def current_sha
+        @current_sha ||=
+          `cd #{PLATFORM_ROOT}; git rev-parse HEAD 2>/dev/null || echo unknown`.
+          chomp.freeze
+      end
+
+      attr_writer :current_sha
 
       %w(development test production staging).each do |m|
       	define_method "#{m}?" do
@@ -121,10 +132,14 @@ module SupportBeeApp
 
     attr_reader :data
 		attr_reader :payload
+    attr_reader :supportbee
+
+    attr_writer :ca_file
 
 		def initialize(data = {}, payload = nil)
     	@data = data || {}
     	@payload = payload || {}
+      @supportbee = SupportBee.new(data[:auth_token])
   	end
 
     def trigger_event(event)
@@ -139,7 +154,7 @@ module SupportBeeApp
       method = to_method(action)
       self.send method if self.respond_to?(method)
       all_actions if self.respond_to?(:all_actions)
-    end
+    end 
 
     private
     
