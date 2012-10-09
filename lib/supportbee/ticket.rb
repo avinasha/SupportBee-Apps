@@ -3,19 +3,13 @@ module SupportBee
     class << self
       def list(auth={},params={})
         response = api_get(url,auth,params)
-        tickets = []
-        result = Hashie::Mash.new
-        response.body.keys.each do |key|
-          if key == 'tickets'
-            response.body[key].each do |ticket|
-              tickets << self.new(auth,ticket)
-            end
-          else
-            result[key] = response.body[key]
-          end
-        end
-        result.tickets = tickets
-        result
+        ticket_array_from_multi_response(response)
+      end
+
+      def search(auth={}, params={})
+        return if params[:query].blank?
+        response = api_get("#{url}/search",auth,params)
+        ticket_array_from_multi_response(response)
       end
 
       def create(auth={},params={})
@@ -30,6 +24,24 @@ module SupportBee
         params[:body] = post_body
         response = api_post(url,auth,params)
         self.new(auth,response.body['ticket'])
+      end
+  
+      private
+
+      def ticket_array_from_multi_response(response)
+        tickets = []
+        result = Hashie::Mash.new
+        response.body.keys.each do |key|
+          if key == 'tickets'
+            response.body[key].each do |ticket|
+              tickets << self.new(auth,ticket)
+            end
+          else
+            result[key] = response.body[key]
+          end
+        end
+        result.tickets = tickets
+        result
       end
     end
 
