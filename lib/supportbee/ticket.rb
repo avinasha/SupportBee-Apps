@@ -62,9 +62,9 @@ module SupportBee
       user_id = user.id if user.kind_of?(SupportBee::User)
       assignment_url = "#{url}/assignments"
       post_data = { :assignment => { :user_id => user_id }}
-      api_post(assignment_url, :body => post_data)
+      response = api_post(assignment_url, :body => post_data)
       refresh
-      SupportBee::Assignment.new(@params)
+      SupportBee::Assignment.new(@params, response.body['assignment'])
     end
 
     def assign_to_group(group)
@@ -72,9 +72,9 @@ module SupportBee
       group_id = group.id if group.kind_of?(SupportBee::Group)
       assignment_url = "#{url}/assignments"
       post_data = { :assignment => { :group_id => group_id }}
-      api_post(assignment_url, :body => post_data)
+      response = api_post(assignment_url, :body => post_data)
       refresh
-      SupportBee::Assignment.new(@params)
+      SupportBee::Assignment.new(@params, response.body['assignment'])
     end
 
     def unassign
@@ -136,18 +136,20 @@ module SupportBee
     end
 
     def reply(params={})
-      replies_url = "#{url}/replies"
       post_body = { :reply => {} }
-      post_body[:reply][:body] = params.delete(:text) if params[:text]
-      post_body[:reply][:body_html] = params.delete(:html) if params[:html]
-      post_body[:reply][:attachment_ids] = params.delete(:attachment_ids) if params[:attachment_ids]
+      content_attributes = {}
+      content_attributes[:body] = params.delete(:text) if params[:text]
+      content_attributes[:body_html] = params.delete(:html) if params[:html]
+      content_attributes[:attachment_ids] = params.delete(:attachment_ids) if params[:attachment_ids]
+      post_body[:reply][:content_attributes] = content_attributes
       params[:body] = post_body
-      response = api_post(url,@params,params)
+      replies_url = "#{url}/replies"
+      response = api_post(replies_url,params)
       refresh
       SupportBee::Reply.new(@params, response.body['reply'])
     end
 
-    def comments(comments=true)
+    def comments(refresh=false)
       refresh = true unless @comments
       if refresh
         comments_url = "#{url}/comments"
@@ -158,19 +160,22 @@ module SupportBee
     end
 
     def comment(params={})
-      replies_url = "#{url}/comments"
       post_body = { :comment => {} }
-      post_body[:comment][:body] = params.delete(:text) if params[:text]
-      post_body[:comment][:body_html] = params.delete(:html) if params[:html]
-      post_body[:comment][:attachment_ids] = params.delete(:attachment_ids) if params[:attachment_ids]
+      content_attributes = {}
+      content_attributes[:body] = params.delete(:text) if params[:text]
+      content_attributes[:body_html] = params.delete(:html) if params[:html]
+      content_attributes[:attachment_ids] = params.delete(:attachment_ids) if params[:attachment_ids]
+      post_body[:comment][:content_attributes] = content_attributes
       params[:body] = post_body
-      response = api_post(url,@params,params)
+      comments_url = "#{url}/comments"
+      response = api_post(comments_url,params)
       refresh
       SupportBee::Comment.new(@params, response.body['comment'])
     end
 
-    def labels_list
-      unless @labels
+    def labels_list(refresh=false)
+      refresh = true unless @labels
+      unless refresh
         @labels = []
         labels.each do |label|
           @labels << SupportBee::Label.new(@params, label)
@@ -184,7 +189,7 @@ module SupportBee
     end
 
     def find_label(label_name)
-      SupportBee::Label.find_by_name(@params,label_name)
+      SupportBee::Label.find_by_name(label_name,@params)
     end
 
     def add_label(label_name)
@@ -210,7 +215,7 @@ module SupportBee
       response.body.keys.each do |key|
         if key == 'replies'
           response.body[key].each do |reply|
-            replies << Ticket::Reply.new(auth,reply)
+            replies << SupportBee::Reply.new(auth,reply)
           end
         else
           result[key] = response.body[key]
@@ -226,7 +231,7 @@ module SupportBee
       response.body.keys.each do |key|
         if key == 'comments'
           response.body[key].each do |comment|
-            replies << Ticket::Comment.new(auth,comment)
+            comments << SupportBee::Comment.new(auth,comment)
           end
         else
           result[key] = response.body[key]

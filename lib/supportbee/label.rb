@@ -1,13 +1,13 @@
 module SupportBee
   class Label < Resource
     class << self
-      def list(auth={}, params={})
+      def list(auth={},params={})
         response = api_get(url,auth,params)
         to_labels_array(response,auth)
       end
 
-      def find_by_name(auth={}, name,params={})
-        list.select{|label| label.name == name}.first
+      def find_by_name(name,auth={},params={})
+        list(auth,params).labels.select{|label| label.name == name}.first
       end
 
       private
