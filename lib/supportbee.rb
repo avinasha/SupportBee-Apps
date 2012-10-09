@@ -63,6 +63,7 @@ module SupportBee
       end
     end
 
+    
     def initialize(data={}, payload={})
       raise NotImplementedError.new('SupportBee::Base is an abstract class.  You should perform actions on its subclasses (Ticket, Reply, etc.)') if self.class == SupportBee::Base
       @params = data
@@ -119,5 +120,12 @@ module SupportBee
   end
 end
 
+require_relative 'supportbee/company'
 require_relative 'supportbee/resource'
+require_relative 'supportbee/label'
+require_relative 'supportbee/user'
+require_relative 'supportbee/group'
+require_relative 'supportbee/assignment'
+require_relative 'supportbee/reply'
+require_relative 'supportbee/comment'
 require_relative 'supportbee/ticket'

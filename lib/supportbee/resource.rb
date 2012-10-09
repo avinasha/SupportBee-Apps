@@ -17,6 +17,13 @@ module SupportBee
       end
     end
 
+    attr_reader :current_company
+
+    def initialize(data={}, payload={})
+      super(data, payload)
+      @current_company = SupportBee::Company.new(@params, @params[:current_company]) if @params[:current_company]
+    end
+
     def url
       unless id
         raise InvalidRequestError.new("Could not determine which URL to request: #{self.class} instance has invalid ID: #{id.inspect}", 'id')
@@ -28,10 +35,6 @@ module SupportBee
       response = api_get(url)
       load_attributes(response.body[self.class.key])
       self
-    end
-
-    def delete
-      api_delete(url)
     end
   end
 end
