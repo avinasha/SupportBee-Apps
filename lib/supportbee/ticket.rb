@@ -3,13 +3,13 @@ module SupportBee
     class << self
       def list(auth={},params={})
         response = api_get(url,auth,params)
-        ticket_array_from_multi_response(response)
+        ticket_array_from_multi_response(response, auth)
       end
 
       def search(auth={}, params={})
         return if params[:query].blank?
         response = api_get("#{url}/search",auth,params)
-        ticket_array_from_multi_response(response)
+        ticket_array_from_multi_response(response, auth)
       end
 
       def create(auth={},params={})
@@ -28,7 +28,7 @@ module SupportBee
   
       private
 
-      def ticket_array_from_multi_response(response)
+      def ticket_array_from_multi_response(response, auth)
         tickets = []
         result = Hashie::Mash.new
         response.body.keys.each do |key|
@@ -47,6 +47,18 @@ module SupportBee
 
     def delete
       raise NotImplementedError.new('A Ticket cannot be deleted')
+    end
+
+    def archive
+      archive_url = "#{url}/archive"
+      api_post(archive_url)
+      refresh
+    end
+
+    def unarchive
+      archive_url = "#{url}/archive"
+      api_delete(archive_url)
+      refresh
     end
   end
 end
