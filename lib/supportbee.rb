@@ -24,41 +24,42 @@ module SupportBee
         {'Accept' => 'application/json'}
       end
 
-      def api_get(resource_url, params={})
-        validate_params(params)
-        url = "#{api_endpoint(params[:subdomain])}#{resource_url}"
+      def api_get(resource_url,auth={},params={})
+        validate_auth(auth)
+        params[:auth_token] = auth[:auth_token]
+        url = "#{api_endpoint(auth[:subdomain])}#{resource_url}"
         http_get(url, params, default_headers)
       end
 
-      def api_post(resource_url, params={})
-        validate_params(params)
-        url = "#{api_endpoint(params[:subdomain])}#{resource_url}"
+      def api_post(resource_url,auth={},params={})
+        validate_auth(auth)
+        url = "#{api_endpoint(auth[:subdomain])}#{resource_url}"
         http_post(url, params[:body], default_headers) do |req|
-          req.params[:auth_token] = params[:auth_token]
+          req.params[:auth_token] = auth[:auth_token]
         end
       end
 
-      def api_put(resource_url, params={})
-        validate_params(params)
-        url = "#{api_endpoint(params[:subdomain])}#{resource_url}"
+      def api_put(resource_url,auth={},params={})
+        validate_auth(auth)
+        url = "#{api_endpoint(auth[:subdomain])}#{resource_url}"
         http_method(:put, url, params[:body], default_headers) do |req|
-          req.params[:auth_token] = params[:auth_token]
+          req.params[:auth_token] = auth[:auth_token]
         end
       end
 
-      def api_delete(resource_url, params={})
-        validate_params(params)
-        url = "#{api_endpoint(params[:subdomain])}#{resource_url}"
+      def api_delete(resource_url,auth={},params={})
+        validate_auth(auth)
+        url = "#{api_endpoint(auth[:subdomain])}#{resource_url}"
         http_method(:delete, url, nil, default_headers) do |req|
-          req.params[:auth_token] = params[:auth_token]
+          req.params[:auth_token] = auth[:auth_token]
         end
       end
 
       private
 
-      def validate_params(params)
-        raise InvalidAuthToken if params[:auth_token].blank?
-        raise InvalidSubDomain if params[:subdomain].blank?
+      def validate_auth(auth)
+        raise InvalidAuthToken if auth[:auth_token].blank?
+        raise InvalidSubDomain if auth[:subdomain].blank?
       end
     end
 
@@ -75,6 +76,10 @@ module SupportBee
     end
 
     def default_params
+      {}
+    end
+
+    def auth
       { :auth_token => @params[:auth_token], :subdomain => @params[:subdomain] }
     end
 
@@ -84,22 +89,22 @@ module SupportBee
 
     def api_get(resource_url, params={})
       params = default_params.merge(params)
-      self.class.api_get(resource_url, params)
+      self.class.api_get(resource_url, auth, params)
     end
 
     def api_post(resource_url, params={})
       params = default_params.merge({:body => params[:body]})
-      self.class.api_post(resource_url, params)
+      self.class.api_post(resource_url, auth, params)
     end
 
     def api_put(resource_url, params={})
       params = default_params.merge({:body => params[:body]})
-      self.class.api_put(resource_url, params)
+      self.class.api_put(resource_url, auth, params)
     end
 
     def api_delete(resource_url, params={})
       params = default_params.merge(params)
-      self.class.api_delete(resource_url, params)
+      self.class.api_delete(resource_url, auth, params)
     end
 
     protected
@@ -115,3 +120,4 @@ module SupportBee
 end
 
 require_relative 'supportbee/resource'
+require_relative 'supportbee/ticket'
