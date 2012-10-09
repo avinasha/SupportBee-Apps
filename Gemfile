@@ -8,6 +8,7 @@ gem 'activesupport', :require => false
 gem 'addressable'
 gem 'faraday'
 gem 'faraday_middleware'
+gem 'hashie'
 
 # App Gems
 gem 'tinder'

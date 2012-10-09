@@ -139,7 +139,7 @@ module SupportBeeApp
 		def initialize(data = {}, payload = nil)
     	@data = data || {}
     	@payload = payload || {}
-      @supportbee = SupportBee.new(data)
+      @supportbee = SupportBee::Client.new(data)
   	end
 
     def trigger_event(event)

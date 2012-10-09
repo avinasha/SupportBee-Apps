@@ -66,6 +66,7 @@ DEPENDENCIES
   faraday
   faraday_middleware
   flexmock
+  hashie
   rack-test
   rake
   rspec

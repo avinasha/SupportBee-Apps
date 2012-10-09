@@ -141,7 +141,7 @@ module HttpHelper
   def check_ssl
     yield
   rescue OpenSSL::SSL::SSLError => e
-    raise_config_error "Invalid SSL cert"
+    #raise_config_error "Invalid SSL cert"
   end
 end
 
