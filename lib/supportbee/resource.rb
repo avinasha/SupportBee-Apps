@@ -1,14 +1,19 @@
 module SupportBee
   class Resource < Base
     class << self
+      def key
+        @key || class_name.downcase
+      end
+
+      def key=(value)
+        @key = value
+      end
+
       def url
         if self == Resource
           raise NotImplementedError.new('APIResource is an abstract class.  You should perform actions on its subclasses (Ticket, Reply, etc.)')
         end
-        "/#{CGI.escape(class_name.downcase)}s"
-      end
-
-      def list(params={})
+        "/#{CGI.escape(key)}s"
       end
     end
 
@@ -20,15 +25,12 @@ module SupportBee
     end
 
     def refresh
-    end
-
-    def create(body=nil)
-    end
-
-    def update(body=nil)
+      response = api_get(url)
+      load_attributes(response.body[key])
     end
 
     def delete
+      api_delete(url)
     end
   end
 end
