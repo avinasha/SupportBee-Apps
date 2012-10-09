@@ -18,15 +18,16 @@ module SupportBee
     end
 
     def url
-      unless id = self['id']
+      unless id
         raise InvalidRequestError.new("Could not determine which URL to request: #{self.class} instance has invalid ID: #{id.inspect}", 'id')
       end
-      "#{self.class.url}/#{CGI.escape(id)}"
+      "#{self.class.url}/#{id}"
     end
 
     def refresh
       response = api_get(url)
-      load_attributes(response.body[key])
+      load_attributes(response.body[self.class.key])
+      self
     end
 
     def delete
